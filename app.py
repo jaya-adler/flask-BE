@@ -1,21 +1,14 @@
 import base64
-from crypt import methods
 from io import BytesIO
 from pickle import TRUE
 from flask import Flask, jsonify, request 
 from flask_cors import CORS
-from itsdangerous import base64_encode
-#packages
-from IPython.display import display
-import os
-import itertools
 from PIL import Image
 from pylab import *
 from PIL import Image, ImageChops, ImageEnhance
 from keras.models import load_model
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
+
 app = Flask(__name__)
 
 CORS(app)
@@ -36,13 +29,13 @@ def convert_to_ela_image(path, quality):
     #ela_im.save("result.jpg",'JPEG')
     return ela_im
 
-def process():
+def process(img):
     trained_model = load_model("trained.h5")
     ##display(orig_img)
     
 
     valid = []
-    valid.append(np.array(convert_to_ela_image('result.jpg',100).resize((60, 60))).flatten() / 255.0)
+    valid.append(np.array(convert_to_ela_image(img,100).resize((60, 60))).flatten() / 255.0)
     valid = np.array(valid)
     valid = valid.reshape(-1, 60, 60, 3)
     val_test = trained_model.predict(valid)
@@ -68,7 +61,7 @@ def result():
         ela_img = convert_to_ela_image(img,100)
         ela_img.save(buff,format="JPEG")
         data['output'] =  base64.b64encode(buff.getvalue()).decode("utf8")
-        data['result']=str(process())
+        data['result']=str(process(img))
         
     #print(data)
     return data
